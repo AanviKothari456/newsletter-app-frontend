@@ -46,7 +46,13 @@ const App = () => {
       const { data, error } = await supabase
         .from('users')
         .upsert([
-          { name: userName, email, newsletters: selectedNewsletters }
+          {
+            name: userName,
+            email,
+            newsletters: selectedNewsletters.map(
+              id => newsletters.find(n => n.id === id).name
+            )
+          }
         ], { onConflict: ['email'] });
 
       if (error) throw error;
