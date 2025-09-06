@@ -16,14 +16,14 @@ const App = () => {
   ];
 
   const toggleNewsletter = (newsletterId) => {
-    setSelectedNewsletters(prev => 
+    setSelectedNewsletters(prev =>
       prev.includes(newsletterId)
         ? prev.filter(id => id !== newsletterId)
         : [...prev, newsletterId]
     );
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!userName.trim() || !email.trim()) {
       alert('Please fill in both username and email fields.');
       return;
@@ -41,20 +41,33 @@ const App = () => {
       return;
     }
 
-    // Show success toast
-    alert('Wait for email tomorrow');
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userName,
+          email,
+          newsletters: selectedNewsletters,
+        }),
+      });
 
-    // TODO: Save to database
-    console.log('Subscription data:', {
-      userName,
-      email,
-      selectedNewsletters,
-    });
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("✅ Subscription saved! Check your email tomorrow.");
+      } else {
+        alert("❌ Failed to save subscription: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Error submitting subscription:", err);
+      alert("❌ Something went wrong. Try again later.");
+    }
   };
 
   const CheckBox = ({ isSelected, onToggle, newsletter }) => (
-    <div 
-      className="checkbox-container" 
+    <div
+      className="checkbox-container"
       onClick={onToggle}
     >
       <div className={`checkbox ${isSelected ? 'checkbox-selected' : ''}`}>
@@ -108,8 +121,8 @@ const App = () => {
         </div>
 
         {/* Confirm Button */}
-        <button 
-          className="confirm-button" 
+        <button
+          className="confirm-button"
           onClick={handleConfirm}
         >
           Confirm Subscription
