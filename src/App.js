@@ -82,7 +82,7 @@ const App = () => {
       <div className="page">
         <div className="card">
           <div className="checkmark-circle">✓</div>
-          <h1 className="card-title">You're Confirmed 🎉</h1>
+          <h1 className="main-title">You're Confirmed 🎉</h1>
           <p className="card-subtitle">
             Check your email tomorrow for your first digest.
           </p>
@@ -98,8 +98,8 @@ const App = () => {
   return (
     <div className="page">
       <div className="card">
-        <h1 className="card-title">Subscribe to Newsletters</h1>
-        <p className="card-subtitle">Stay updated with fresh content every week</p>
+        <h1 className="main-title">Subscribe to Newsletters</h1>
+        <p className="main-subtitle">Stay updated with fresh content every week</p>
 
         <form onSubmit={handleConfirm}>
           <input
@@ -118,17 +118,26 @@ const App = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <div className="pill-section">
-            <h2 className="pill-heading">Curate your newsletter selection:</h2>
-            {newsletters.map((n) => (
-              <CheckBox
-                key={n.id}
-                newsletter={n}
-                isSelected={selectedNewsletters.includes(n.id)}
-                onToggle={() => toggleNewsletter(n.id)}
-              />
-            ))}
-          </div>
+      <div className="pill-section">
+  <h2 className="main-subtitle">
+    Select all the newsletters you want a digest of:
+  </h2>
+
+  <div className="card-grid">
+    {newsletters.map((n) => (
+      <div
+        key={n.id}
+        className={`newsletter-card ${selectedNewsletters.includes(n.id) ? 'selected' : ''}`}
+        onClick={() => toggleNewsletter(n.id)}
+      >
+        <h3 className="card-title">{n.name}</h3>
+        <p className="card-desc">{n.description}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+
 
 
           <button type="submit" className="primary-button">
@@ -147,20 +156,35 @@ const pageStyles = `
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #e0f7fa, #e8f5e9);
+    background: linear-gradient(135deg, #000000ff, #000000ff);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     padding: 20px;
   }
-  .card {
-    background: #fff;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-    animation: fadeIn 0.6s ease-in-out;
-  }
+.card {
+  max-width: 900px;    /* much wider for desktops */
+  width: 100%;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: left;    /* optional: left-align form content */
+}
+.main-title {
+  font-size: 2.2rem;              /* bigger */
+  font-weight: 700;                /* bolder */
+  font-family: 'Poppins', sans-serif; /* fun, modern font */
+  color: #ffffffff;                  /* vibrant green */
+  margin-bottom: 16px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* subtle depth */
+  letter-spacing: 1px;             /* adds some style */
+}
+
+  .main-subtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #ffffff;
+  margin-bottom: 25px;
+}
+
+
   .card-title {
     font-size: 1.8rem;
     font-weight: 400;
@@ -168,10 +192,11 @@ const pageStyles = `
     margin-bottom: 10px;
   }
   .card-subtitle {
-    font-size: 1rem;
-    color: #7f8c8d;
-    margin-bottom: 25px;
-  }
+  font-size: 1rem;
+  font-weight: 400;
+  color: #ffffff;
+  margin-bottom: 25px;
+}
   .input {
     width: 100%;
     padding: 12px 14px;
