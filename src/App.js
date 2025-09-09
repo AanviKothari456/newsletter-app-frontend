@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from './supabaseClient';
+import supabase from './supabaseClient';
 
 const App = () => {
   const [userName, setUserName] = useState('');
@@ -8,18 +8,40 @@ const App = () => {
   const [confirmed, setConfirmed] = useState(false);
 
   const newsletters = [
-  { id: 1, name: 'Need2Know, by Cheddar', description: 'Daily news simplified, straight facts' },
-  { id: 2, name: 'The Hustle', description: 'Sharp business news with humor' },
-  { id: 3, name: 'We’re Here, Hank and John', description: 'Personal stories, humor, thoughtful insights' },
-  { id: 4, name: 'Tim Ferriss', description: 'Tools, tactics, productivity, personal growth' },
-  { id: 5, name: 'The Art and Science of Happiness', description: 'Psychology, wellbeing, happiness made practical' },
-  { id: 6, name: 'Now I Know', description: 'Surprising facts explained, daily stories' },
-  { id: 7, name: 'Morning Brew', description: 'Business, markets, tech in minutes' },
-  { id: 8, name: 'Total Anarchy', description: 'Marketing tips, writing, creativity unleashed' },
-  { id: 9, name: 'Vox Sentences', description: 'Top stories summarized in context' },
-  { id: 10, name: 'Sahil Bloom’s Curiosity Chronicle', description: 'Ideas, frameworks, curiosities made simple' },
-];
-
+    { 
+      id: 1, 
+      name: 'Y-Combinator', 
+      description: 'Keep up with the latest news, launches, jobs, and events from the YC community.',
+      color: '#FF6B35',
+      textColor: '#FFFFFF',
+      icon: 'Y'
+    },
+    { 
+      id: 2, 
+      name: 'TechCrunch', 
+      description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital',
+      color: '#00D35B',
+      textColor: '#FFFFFF',
+      icon: 'TC'
+    },
+    { 
+      id: 3, 
+      name: 'Ben @ next-play', 
+      description: 'Helping world-class talent discover what\'s next through next-play',
+      color: '#E8DDD4',
+      textColor: '#2C3E50',
+      icon: '👨‍💼',
+      isImage: true
+    },
+    { 
+      id: 4, 
+      name: 'MorningBrew', 
+      description: 'Morning Brew delivers quick and insightful updates about the business world every day',
+      color: '#4A90E2',
+      textColor: '#FFFFFF',
+      icon: '☕'
+    }
+  ];
 
   const toggleNewsletter = (newsletterId) => {
     setSelectedNewsletters(prev =>
@@ -29,9 +51,7 @@ const App = () => {
     );
   };
 
-  const handleConfirm = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!userName.trim() || !email.trim()) {
       alert('Please fill in both name and email fields.');
       return;
@@ -67,221 +87,120 @@ const App = () => {
     }
   };
 
-  const CheckBox = ({ isSelected, onToggle, newsletter }) => (
-    <div
-      className={`checkbox-pill ${isSelected ? 'selected' : ''}`}
-      onClick={onToggle}
-    >
-      <div className="pill-title">{newsletter.name}</div>
-      <div className="pill-desc">{newsletter.description}</div>
-    </div>
-  );
-
   if (confirmed) {
     return (
-      <div className="page">
-        <div className="card">
-          <div className="checkmark-circle">✓</div>
-          <h1 className="main-title">You're Confirmed 🎉</h1>
-          <p className="card-subtitle">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mx-auto mb-6">
+            ✓
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">You're Confirmed 🎉</h1>
+          <p className="text-gray-600 mb-8">
             Check your email tomorrow for your first digest.
           </p>
-          <button className="primary-button" onClick={() => window.location.reload()}>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-black text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
             Back to Home
           </button>
         </div>
-        <style>{pageStyles}</style>
       </div>
     );
   }
 
   return (
-    <div className="page">
-      <div className="card">
-        <h1 className="main-title">Subscribe to Newsletters</h1>
-        <p className="main-subtitle">Stay updated with fresh content every week</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="text-center pt-12 pb-8">
+        <h1 className="text-5xl font-bold text-black mb-2">NewsKiller</h1>
+        <p className="text-gray-600 text-lg">Turn up to 20 NewsLetters into 1</p>
+      </div>
 
-        <form onSubmit={handleConfirm}>
+      {/* Navigation */}
+      <div className="flex justify-center mb-12">
+        <div className="flex space-x-8">
+          <button className="text-black font-medium border-b-2 border-black pb-1">Tech</button>
+          <button className="text-gray-500 font-medium hover:text-black transition-colors">Wellness</button>
+          <button className="text-gray-500 font-medium hover:text-black transition-colors">Berkeley</button>
+        </div>
+      </div>
+
+      {/* Newsletter Cards */}
+      <div className="max-w-6xl mx-auto px-4 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {newsletters.map((newsletter) => (
+            <div
+              key={newsletter.id}
+              onClick={() => toggleNewsletter(newsletter.id)}
+              className={`relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-200 ${
+                selectedNewsletters.includes(newsletter.id) 
+                  ? 'ring-4 ring-blue-500 scale-105' 
+                  : 'hover:scale-102'
+              }`}
+            >
+              <div 
+                className="h-48 flex items-center justify-center relative"
+                style={{ backgroundColor: newsletter.color }}
+              >
+                <div className="text-center">
+                  {newsletter.isImage ? (
+                    <div className="text-6xl mb-2">{newsletter.icon}</div>
+                  ) : (
+                    <div 
+                      className="text-6xl font-bold mb-2"
+                      style={{ color: newsletter.textColor }}
+                    >
+                      {newsletter.icon}
+                    </div>
+                  )}
+                </div>
+                {selectedNewsletters.includes(newsletter.id) && (
+                  <div className="absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              <div className="bg-white p-4">
+                <h3 className="font-bold text-lg text-gray-900 mb-2">{newsletter.name}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{newsletter.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="max-w-md mx-auto px-4 pb-12">
+        <div className="space-x-4 flex flex-row justify-center items-center">
           <input
             type="text"
-            className="input"
-            placeholder="Name"
+            placeholder="name:"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-gray-900 placeholder-gray-600 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
+          
           <input
             type="email"
-            className="input"
-            placeholder="Email address"
+            placeholder="email:"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-gray-900 placeholder-gray-600 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-
-      <div className="pill-section">
-  <h2 className="main-subtitle">
-    Select all the newsletters you want a digest of:
-  </h2>
-
-  <div className="card-grid">
-    {newsletters.map((n) => (
-      <div
-        key={n.id}
-        className={`newsletter-card ${selectedNewsletters.includes(n.id) ? 'selected' : ''}`}
-        onClick={() => toggleNewsletter(n.id)}
-      >
-        <h3 className="card-title">{n.name}</h3>
-        <p className="card-desc">{n.description}</p>
-      </div>
-    ))}
-  </div>
-</div>
-
-
-
-
-          <button type="submit" className="primary-button">
-            Confirm Subscription
+          
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            submit
           </button>
-        </form>
+        </div>
       </div>
-      <style>{pageStyles}</style>
     </div>
   );
 };
-
-const pageStyles = `
-  .page {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #000000ff, #000000ff);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    padding: 20px;
-  }
-.card {
-  max-width: 900px;    /* much wider for desktops */
-  width: 100%;
-  padding: 40px;
-  border-radius: 16px;
-  text-align: left;    /* optional: left-align form content */
-}
-.main-title {
-  font-size: 2.2rem;              /* bigger */
-  font-weight: 700;                /* bolder */
-  font-family: 'Poppins', sans-serif; /* fun, modern font */
-  color: #ffffffff;                  /* vibrant green */
-  margin-bottom: 16px;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* subtle depth */
-  letter-spacing: 1px;             /* adds some style */
-}
-
-  .main-subtitle {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #ffffff;
-  margin-bottom: 25px;
-}
-
-
-  .card-title {
-    font-size: 1.8rem;
-    font-weight: 400;
-    color: #2c3e50;
-    margin-bottom: 10px;
-  }
-  .card-subtitle {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #ffffff;
-  margin-bottom: 25px;
-}
-  .input {
-    width: 100%;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    border: 1px solid #ccd1d9;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: border 0.2s, box-shadow 0.2s;
-  }
-  .input:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52,152,219,0.15);
-  }
-  .pill-section {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .checkbox-pill {
-    border: 1px solid #ccd1d9;
-    border-radius: 10px;
-    padding: 12px 16px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .checkbox-pill:hover {
-    background: #f8f9fa;
-  }
-  .checkbox-pill.selected {
-    background: #3498db;
-    border-color: #3498db;
-    color: #fff;
-  }
-  .pill-title {
-    font-size: 1rem;
-    font-weight: 400;
-  }
-  .pill-desc {
-    font-size: 0.85rem;
-    opacity: 0.85;
-  }
-  .primary-button {
-    background: #27ae60;
-    color: #fff;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .primary-button:hover {
-    background: #219150;
-  }
-  .primary-button:active {
-    transform: scale(0.98);
-  }
-  .checkmark-circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: #27ae60;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0 auto 20px auto;
-    box-shadow: 0 4px 10px rgba(39, 174, 96, 0.4);
-    animation: pop 0.4s ease-in-out;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-`;
 
 export default App;
