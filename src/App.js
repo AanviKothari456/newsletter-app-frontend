@@ -25,7 +25,7 @@ const App = () => {
 
     // Berkeley
     { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community', color: '#306998', textColor: '#FFFFFF', icon: '🏫', category: 'Berkeley' },
-    
+
     //Finance
     { id: 12, name: 'Morning Money', description: 'Daily finance insights and market news', color: '#baf693ff', textColor: '#000000', icon: '💰', category: 'Finance' },
     { id: 13, name: 'Investopedia Daily', description: 'Investment tips and financial news', color: '#807ee5ff', textColor: '#FFFFFF', icon: '📈', category: 'Finance' },
@@ -112,22 +112,31 @@ const App = () => {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-center mb-12">
-        <div className="flex space-x-8">
-          {['All', 'Tech', 'Wellness', 'Berkeley', 'Finance'].map(cat => (
-            <button
-              key={cat}
-              className={`font-medium pb-1 transition-colors ${activeCategory === cat
-                  ? 'text-black border-b-2 border-black'
-                  : 'text-gray-500 hover:text-black'
-                }`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
+
+<div className="relative overflow-x-auto mb-12">
+  {/* Left shadow */}
+  <div className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-gray-50 to-transparent z-10"></div>
+
+  {/* Right shadow */}
+  <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-50 to-transparent z-10"></div>
+
+  <div className="inline-flex justify-center space-x-4 px-4 min-w-max w-full">
+    {['All', 'Tech', 'Wellness', 'Berkeley', 'Finance'].map(cat => (
+      <button
+        key={cat}
+        className={`flex-shrink-0 font-medium pb-1 transition-colors ${
+          activeCategory === cat
+            ? 'text-black border-b-2 border-black'
+            : 'text-gray-500 hover:text-black'
+        }`}
+        onClick={() => setActiveCategory(cat)}
+      >
+        {cat}
+      </button>
+    ))}
+  </div>
+</div>
+
 
       {/* Newsletter Cards */}
       <div className="max-w-6xl mx-auto px-4 mb-12">
@@ -137,8 +146,8 @@ const App = () => {
               key={newsletter.id}
               onClick={() => toggleNewsletter(newsletter.id)}
               className={`relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-200 ${selectedNewsletters.includes(newsletter.id)
-                  ? 'ring-4 ring-blue-500 scale-105'
-                  : 'hover:scale-102'
+                ? 'ring-4 ring-blue-500 scale-105'
+                : 'hover:scale-102'
                 }`}
             >
               <div
