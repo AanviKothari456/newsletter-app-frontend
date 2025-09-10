@@ -13,10 +13,9 @@ const App = () => {
     { id: 1, name: 'Y-Combinator', description: 'Keep up with the latest news, launches, jobs, and events from the YC community.', color: '#fc703dff', textColor: '#ffffffff', icon: 'Y', category: 'Tech' },
     { id: 2, name: 'TechCrunch', description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital', color: '#28A745', textColor: '#FFFFFF', icon: 'TC', category: 'Tech' },
     { id: 3, name: 'Ben @ next-play', description: 'Helping world-class talent discover what\'s next through next-play', color: '#F0E5D8', textColor: '#2C3E50', icon: '👨‍💼', isImage: true, category: 'Tech' },
-    { id: 4, name: 'MorningBrew', description: 'Morning Brew delivers quick and insightful updates about the business world every day', color: '#3498DB', textColor: '#FFFFFF', icon: '☕', category: 'Tech' },
-
+    
     // Wellness
-    { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you', color: '#F7C548', textColor: '#000000', icon: '📰', category: 'Wellness' },
+
     { id: 6, name: 'James Clear', description: '3-2-1 newsletter by the author of Atomic Habits', color: '#e7e8c9ff', textColor: '#000000ff', icon: 'JC', category: 'Wellness' },
     { id: 7, name: 'We’re Here, Hank and John', description: 'Fun and thoughtful commentary on culture and news', color: '#5B6BF2', textColor: '#FFFFFF', icon: '📈', category: 'Wellness' },
     { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights', color: '#9B59B6', textColor: '#FFFFFF', icon: 'TF', category: 'Wellness' },
@@ -25,10 +24,13 @@ const App = () => {
 
     // Berkeley
     { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community', color: '#306998', textColor: '#FFFFFF', icon: '🏫', category: 'Berkeley' },
+     { id: 11, name: 'SCET', description: 'Updates and news from the Berkeley community', color: '#306998', textColor: '#FFFFFF', icon: '🏫', category: 'Berkeley' },
 
     //Finance
-    { id: 12, name: 'Morning Money', description: 'Daily finance insights and market news', color: '#baf693ff', textColor: '#000000', icon: '💰', category: 'Finance' },
-    { id: 13, name: 'Investopedia Daily', description: 'Investment tips and financial news', color: '#807ee5ff', textColor: '#FFFFFF', icon: '📈', category: 'Finance' },
+     { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you', color: '#F7C548', textColor: '#000000', icon: '📰', category: 'Finance' },
+    { id: 12, name: 'Axios Pro Rata', description: 'Daily finance insights and market news', color: '#baf693ff', textColor: '#000000', icon: '💰', category: 'Finance' },
+    { id: 13, name: 'Motley Fool', description: 'Investment tips and financial news', color: '#807ee5ff', textColor: '#FFFFFF', icon: '📈', category: 'Finance' },
+    { id: 4, name: 'MorningBrew', description: 'Morning Brew delivers quick and insightful updates about the business world every day', color: '#3498DB', textColor: '#FFFFFF', icon: '☕', category: 'Finance' },
 
   ];
 
