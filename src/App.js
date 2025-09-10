@@ -6,41 +6,25 @@ const App = () => {
   const [email, setEmail] = useState('');
   const [selectedNewsletters, setSelectedNewsletters] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('All');
 
   const newsletters = [
-    { 
-      id: 1, 
-      name: 'Y-Combinator', 
-      description: 'Keep up with the latest news, launches, jobs, and events from the YC community.',
-      color: '#FF6B35',
-      textColor: '#FFFFFF',
-      icon: 'Y'
-    },
-    { 
-      id: 2, 
-      name: 'TechCrunch', 
-      description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital',
-      color: '#00D35B',
-      textColor: '#FFFFFF',
-      icon: 'TC'
-    },
-    { 
-      id: 3, 
-      name: 'Ben @ next-play', 
-      description: 'Helping world-class talent discover what\'s next through next-play',
-      color: '#E8DDD4',
-      textColor: '#2C3E50',
-      icon: '👨‍💼',
-      isImage: true
-    },
-    { 
-      id: 4, 
-      name: 'MorningBrew', 
-      description: 'Morning Brew delivers quick and insightful updates about the business world every day',
-      color: '#4A90E2',
-      textColor: '#FFFFFF',
-      icon: '☕'
-    }
+    // Tech
+    { id: 1, name: 'Y-Combinator', description: 'Keep up with the latest news, launches, jobs, and events from the YC community.', color: '#fc703dff', textColor: '#ffffffff', icon: 'Y', category: 'Tech' },
+    { id: 2, name: 'TechCrunch', description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital', color: '#28A745', textColor: '#FFFFFF', icon: 'TC', category: 'Tech' },
+    { id: 3, name: 'Ben @ next-play', description: 'Helping world-class talent discover what\'s next through next-play', color: '#F0E5D8', textColor: '#2C3E50', icon: '👨‍💼', isImage: true, category: 'Tech' },
+    { id: 4, name: 'MorningBrew', description: 'Morning Brew delivers quick and insightful updates about the business world every day', color: '#3498DB', textColor: '#FFFFFF', icon: '☕', category: 'Tech' },
+
+    // Wellness
+    { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you', color: '#F7C548', textColor: '#000000', icon: '📰', category: 'Wellness' },
+    { id: 6, name: 'The Hustle', description: 'Daily business and tech newsletter with a sense of humor', color: '#34495E', textColor: '#FFFFFF', icon: '💼', category: 'Wellness' },
+    { id: 7, name: 'We’re Here, Hank and John', description: 'Fun and thoughtful commentary on culture and news', color: '#5B6BF2', textColor: '#FFFFFF', icon: '📈', category: 'Wellness' },
+    { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights', color: '#9B59B6', textColor: '#FFFFFF', icon: 'TF', category: 'Wellness' },
+    { id: 9, name: 'The Art and Science of Happiness', description: 'Insights on mental health and well-being', color: '#1ABC9C', textColor: '#FFFFFF', icon: '🌱', category: 'Wellness' },
+    { id: 10, name: 'Now I Know', description: 'Interesting facts and trivia', color: '#F39C12', textColor: '#000000', icon: '💡', category: 'Wellness' },
+
+    // Berkeley
+    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community', color: '#306998', textColor: '#FFFFFF', icon: '🏫', category: 'Berkeley' }
   ];
 
   const toggleNewsletter = (newsletterId) => {
@@ -109,27 +93,42 @@ const App = () => {
     );
   }
 
+  // Filter newsletters by active category
+  const filteredNewsletters = activeCategory === 'All'
+    ? newsletters
+    : newsletters.filter(n => n.category === activeCategory);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="text-center pt-12 pb-8">
         <h1 className="text-5xl font-bold text-black mb-2">NewsKiller</h1>
-        <p className="text-gray-600 text-lg">Turn up to 20 NewsLetters into 1</p>
+        <p className="text-gray-600 text-lg">Turn up to 20 Newsletters into 1</p>
       </div>
 
       {/* Navigation */}
       <div className="flex justify-center mb-12">
         <div className="flex space-x-8">
-          <button className="text-black font-medium border-b-2 border-black pb-1">Tech</button>
-          <button className="text-gray-500 font-medium hover:text-black transition-colors">Wellness</button>
-          <button className="text-gray-500 font-medium hover:text-black transition-colors">Berkeley</button>
+          {['All', 'Tech', 'Wellness', 'Berkeley'].map(cat => (
+            <button
+              key={cat}
+              className={`font-medium pb-1 transition-colors ${
+                activeCategory === cat
+                  ? 'text-black border-b-2 border-black'
+                  : 'text-gray-500 hover:text-black'
+              }`}
+              onClick={() => setActiveCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Newsletter Cards */}
       <div className="max-w-6xl mx-auto px-4 mb-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newsletters.map((newsletter) => (
+          {filteredNewsletters.map((newsletter) => (
             <div
               key={newsletter.id}
               onClick={() => toggleNewsletter(newsletter.id)}
@@ -174,7 +173,7 @@ const App = () => {
 
       {/* Form */}
       <div className="max-w-md mx-auto px-4 pb-12">
-        <div className="space-x-4 flex flex-row justify-center items-center">
+        <div className="space-x-4 flex flex-col md:flex-row justify-center items-center gap-4">
           <input
             type="text"
             placeholder="name:"
