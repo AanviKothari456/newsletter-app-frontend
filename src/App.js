@@ -113,75 +113,99 @@ const App = () => {
 
       {/* Navigation */}
 
-<div className="relative overflow-x-auto mb-12">
-  {/* Left shadow */}
-  <div className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-gray-50 to-transparent z-10"></div>
+      <div className="relative overflow-x-auto mb-12">
+        {/* Left shadow */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-gray-50 to-transparent z-10"></div>
 
-  {/* Right shadow */}
-  <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-50 to-transparent z-10"></div>
+        {/* Right shadow */}
+        <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-50 to-transparent z-10"></div>
 
-  <div className="inline-flex justify-center space-x-4 px-4 min-w-max w-full">
-    {['All', 'Tech', 'Wellness', 'Berkeley', 'Finance'].map(cat => (
-      <button
-        key={cat}
-        className={`flex-shrink-0 font-medium pb-1 transition-colors ${
-          activeCategory === cat
-            ? 'text-black border-b-2 border-black'
-            : 'text-gray-500 hover:text-black'
-        }`}
-        onClick={() => setActiveCategory(cat)}
-      >
-        {cat}
-      </button>
-    ))}
-  </div>
-</div>
-
-
-      {/* Newsletter Cards */}
-      <div className="max-w-6xl mx-auto px-4 mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredNewsletters.map((newsletter) => (
-            <div
-              key={newsletter.id}
-              onClick={() => toggleNewsletter(newsletter.id)}
-              className={`relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-200 ${selectedNewsletters.includes(newsletter.id)
-                ? 'ring-4 ring-blue-500 scale-105'
-                : 'hover:scale-102'
+        <div className="inline-flex justify-center space-x-4 px-4 min-w-max w-full">
+          {['All', 'Tech', 'Wellness', 'Berkeley', 'Finance'].map(cat => (
+            <button
+              key={cat}
+              className={`flex-shrink-0 font-medium pb-1 transition-colors ${activeCategory === cat
+                  ? 'text-black border-b-2 border-black'
+                  : 'text-gray-500 hover:text-black'
                 }`}
+              onClick={() => setActiveCategory(cat)}
             >
-              <div
-                className="h-48 flex items-center justify-center relative"
-                style={{ backgroundColor: newsletter.color }}
-              >
-                <div className="text-center">
-                  {newsletter.isImage ? (
-                    <div className="text-6xl mb-2">{newsletter.icon}</div>
-                  ) : (
-                    <div
-                      className="text-6xl font-bold mb-2"
-                      style={{ color: newsletter.textColor }}
-                    >
-                      {newsletter.icon}
-                    </div>
-                  )}
-                </div>
-                {selectedNewsletters.includes(newsletter.id) && (
-                  <div className="absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-              <div className="bg-white p-4">
-                <h3 className="font-bold text-lg text-gray-900 mb-2">{newsletter.name}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{newsletter.description}</p>
-              </div>
-            </div>
+              {cat}
+            </button>
           ))}
         </div>
       </div>
+
+
+     {/* Newsletter Cards */}
+<div className="max-w-6xl mx-auto px-4 mb-12">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {filteredNewsletters.map((newsletter) => {
+      const isSelected = selectedNewsletters.includes(newsletter.id);
+
+      return (
+        <div
+          key={newsletter.id}
+          onClick={() => toggleNewsletter(newsletter.id)}
+          className={`relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-200
+            ${isSelected
+              ? 'ring-4 ring-blue-500 scale-100 shadow-lg'
+              : 'hover:scale-105 hover:shadow-lg'
+            }
+          `}
+        >
+          {/* Hover overlay only for unselected */}
+          {!isSelected && (
+            <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 hover:opacity-100 transition-opacity rounded-2xl"></div>
+          )}
+
+          {/* Colored icon area */}
+          <div
+            className="h-48 flex items-center justify-center relative"
+            style={{ backgroundColor: newsletter.color }}
+          >
+            <div className="text-center">
+              {newsletter.isImage ? (
+                <div className="text-6xl mb-2">{newsletter.icon}</div>
+              ) : (
+                <div
+                  className="text-6xl font-bold mb-2"
+                  style={{ color: newsletter.textColor }}
+                >
+                  {newsletter.icon}
+                </div>
+              )}
+            </div>
+
+            {/* Selected checkmark */}
+            {isSelected && (
+              <div className="absolute top-3 right-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-4 h-4 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+
+          {/* Card text */}
+          <div className="bg-white p-4">
+            <h3 className="font-bold text-lg text-gray-900 mb-2">{newsletter.name}</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">{newsletter.description}</p>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
 
       {/* Form */}
       <div className="max-w-md mx-auto px-4 pb-12">
