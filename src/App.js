@@ -17,14 +17,19 @@ const App = () => {
 
     // Wellness
     { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you', color: '#F7C548', textColor: '#000000', icon: '📰', category: 'Wellness' },
-    { id: 6, name: 'The Hustle', description: 'Daily business and tech newsletter with a sense of humor', color: '#34495E', textColor: '#FFFFFF', icon: '💼', category: 'Wellness' },
+    { id: 6, name: 'James Clear', description: '3-2-1 newsletter by the author of Atomic Habits', color: '#e7e8c9ff', textColor: '#000000ff', icon: 'JC', category: 'Wellness' },
     { id: 7, name: 'We’re Here, Hank and John', description: 'Fun and thoughtful commentary on culture and news', color: '#5B6BF2', textColor: '#FFFFFF', icon: '📈', category: 'Wellness' },
     { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights', color: '#9B59B6', textColor: '#FFFFFF', icon: 'TF', category: 'Wellness' },
     { id: 9, name: 'The Art and Science of Happiness', description: 'Insights on mental health and well-being', color: '#1ABC9C', textColor: '#FFFFFF', icon: '🌱', category: 'Wellness' },
     { id: 10, name: 'Now I Know', description: 'Interesting facts and trivia', color: '#F39C12', textColor: '#000000', icon: '💡', category: 'Wellness' },
 
     // Berkeley
-    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community', color: '#306998', textColor: '#FFFFFF', icon: '🏫', category: 'Berkeley' }
+    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community', color: '#306998', textColor: '#FFFFFF', icon: '🏫', category: 'Berkeley' },
+    
+    //Finance
+    { id: 12, name: 'Morning Money', description: 'Daily finance insights and market news', color: '#baf693ff', textColor: '#000000', icon: '💰', category: 'Finance' },
+    { id: 13, name: 'Investopedia Daily', description: 'Investment tips and financial news', color: '#807ee5ff', textColor: '#FFFFFF', icon: '📈', category: 'Finance' },
+
   ];
 
   const toggleNewsletter = (newsletterId) => {
@@ -82,7 +87,7 @@ const App = () => {
           <p className="text-gray-600 mb-8">
             Check your email tomorrow for your first digest.
           </p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="bg-black text-white px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
           >
@@ -109,14 +114,13 @@ const App = () => {
       {/* Navigation */}
       <div className="flex justify-center mb-12">
         <div className="flex space-x-8">
-          {['All', 'Tech', 'Wellness', 'Berkeley'].map(cat => (
+          {['All', 'Tech', 'Wellness', 'Berkeley', 'Finance'].map(cat => (
             <button
               key={cat}
-              className={`font-medium pb-1 transition-colors ${
-                activeCategory === cat
+              className={`font-medium pb-1 transition-colors ${activeCategory === cat
                   ? 'text-black border-b-2 border-black'
                   : 'text-gray-500 hover:text-black'
-              }`}
+                }`}
               onClick={() => setActiveCategory(cat)}
             >
               {cat}
@@ -132,13 +136,12 @@ const App = () => {
             <div
               key={newsletter.id}
               onClick={() => toggleNewsletter(newsletter.id)}
-              className={`relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-200 ${
-                selectedNewsletters.includes(newsletter.id) 
-                  ? 'ring-4 ring-blue-500 scale-105' 
+              className={`relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-200 ${selectedNewsletters.includes(newsletter.id)
+                  ? 'ring-4 ring-blue-500 scale-105'
                   : 'hover:scale-102'
-              }`}
+                }`}
             >
-              <div 
+              <div
                 className="h-48 flex items-center justify-center relative"
                 style={{ backgroundColor: newsletter.color }}
               >
@@ -146,7 +149,7 @@ const App = () => {
                   {newsletter.isImage ? (
                     <div className="text-6xl mb-2">{newsletter.icon}</div>
                   ) : (
-                    <div 
+                    <div
                       className="text-6xl font-bold mb-2"
                       style={{ color: newsletter.textColor }}
                     >
@@ -181,7 +184,7 @@ const App = () => {
             onChange={(e) => setUserName(e.target.value)}
             className="w-full px-4 py-3 bg-gray-200 rounded-lg text-gray-900 placeholder-gray-600 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          
+
           <input
             type="email"
             placeholder="email:"
@@ -189,7 +192,7 @@ const App = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-3 bg-gray-200 rounded-lg text-gray-900 placeholder-gray-600 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          
+
           <button
             onClick={handleSubmit}
             className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
