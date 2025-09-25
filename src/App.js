@@ -11,6 +11,9 @@ const App = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [preference, setPreference] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  // Waitlist + Beta access state
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [betaCode, setBetaCode] = useState('');
 
   const images = {
     ycombinator: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Y_Combinator_logo.svg/1200px-Y_Combinator_logo.svg.png',
@@ -68,7 +71,24 @@ const App = () => {
   const [text] = useTypewriter({
     words: ["NewsKiller"],
     typeSpeed: 53,
+    loop: 2,
+  });
+  const [youreSet] = useTypewriter({
+    words: ["You're all Set!"],
+    typeSpeed: 53,
     loop: 3,
+  });
+
+  const [categoriesText] = useTypewriter({
+    words: ["Categories"],
+    typeSpeed: 53, 
+    loop: 3,
+  });
+
+  const [submitText] = useTypewriter({
+    words: ["Submit"],
+    typeSpeed: 53,
+    loop: 333
   });
 
   const categories = ['All', 'Tech', 'Sports', 'World News', 'SF Life', 'Wellness', 'Berkeley', 'Finance'];
@@ -88,6 +108,14 @@ const App = () => {
         : [...prev, newsletterId]
     );
   };
+  const TextTyping = (text) => {
+    const [typedText] = useTypewriter({
+      words: [text],
+      typeSpeed: 53,
+      loop: 3,
+    });
+    return typedText;
+  }
 
   // Main submit handler for newsletter selection
   const handleSubmit = async () => {
@@ -107,15 +135,15 @@ const App = () => {
 
     try {
       const { error } = await supabase
-        .from('users')
+        .from('main_emails')
         .upsert([
           {
             name: userName,
-            email,
+            email: email,
             newsletters: selectedNewsletters.map(
               id => newsletters.find(n => n.id === id).name
             ),
-            user_profile: "pee" || null,
+            profile: "Short and informative; focus on being objective",
           }
         ], { onConflict: ['email'] });
 
@@ -124,6 +152,37 @@ const App = () => {
     } catch (err) {
       console.error('Error submitting subscription:', err);
       alert('❌ Something went wrong. Try again later.');
+    }
+  };
+
+  // Join waitlist handler
+  const handleJoinWaitlist = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!waitlistEmail.trim() || !emailRegex.test(waitlistEmail)) {
+      alert('Please enter a valid email to join the waitlist.');
+      return;
+    }
+    try {
+      const { error } = await supabase
+        .from('waitlist_db')
+        .upsert([
+          { email: waitlistEmail }
+        ], { onConflict: ['email'] });
+      if (error) throw error;
+      alert('🎉 Added to the waitlist!');
+      setWaitlistEmail('');
+    } catch (err) {
+      console.error('Waitlist insert error:', err);
+      alert('❌ Could not join the waitlist. Please try again later.');
+    }
+  };
+
+  // Beta access handler
+  const handleBetaAccess = () => {
+    if (betaCode.trim() === 'newskiller-beta') {
+      setCurrentPage('newsletters');
+    } else {
+      alert('Incorrect beta code.');
     }
   };
 
@@ -138,17 +197,17 @@ const App = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
-            You're All Set! 🎉
+            {youreSet}
           </h1>
           <p className="text-slate-600 text-lg mb-8 leading-relaxed">
             Your personalized digest will arrive in your inbox tomorrow morning.
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="group relative bg-gradient-to-r from-slate-900 to-slate-700 text-white px-10 py-4 rounded-xl font-semibold hover:from-slate-800 hover:to-slate-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="group relative bg-gradient-to-r from-slate-900 to-slate-700 hover:from- text-white px-10 py-4 rounded-xl font-semibold hover:from-slate-800 hover:to-slate-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             <span className="relative z-10">Start Over</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-600 hover:from-blue-600 hover:to-purple-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
         </div>
       </div>
@@ -264,7 +323,7 @@ const App = () => {
       <div
         key={newsletter.id}
         onClick={() => toggleNewsletter(newsletter.id)}
-        className={`group relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 bg-white
+        className={`group relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 bg-white min-w-0
           ${isSelected
             ? 'ring-4 ring-blue-500 shadow-2xl transform scale-105'
             : 'hover:shadow-xl hover:transform hover:scale-105 shadow-lg'
@@ -278,7 +337,7 @@ const App = () => {
 
         {/* Icon area with improved gradients */}
         <div
-          className="h-52 flex items-center justify-center relative overflow-hidden"
+          className="h-40 sm:h-48 md:h-52 flex items-center justify-center relative overflow-hidden"
           style={{ backgroundColor: newsletter.color }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10"></div>
@@ -287,7 +346,7 @@ const App = () => {
               <img 
                 src={newsletter.icon} 
                 alt={newsletter.name}
-                className="w-20 h-20 object-contain rounded-lg"
+                className="w-25 h-[10rem] sm:w-20 sm:h-20 md:h-40 md:w-40 object-contain rounded-lg max-w-full shrink-0"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'block';
@@ -303,8 +362,8 @@ const App = () => {
 
         {/* Card content with improved typography */}
         <div className="bg-white p-6">
-          <h3 className="font-bold text-xl text-slate-900 mb-3 leading-tight">{newsletter.name}</h3>
-          <p className="text-slate-600 text-sm leading-relaxed">{newsletter.description}</p>
+          <h3 className="font-bold text-xl text-slate-900 mb-3 leading-tight break-words line-clamp-2">{newsletter.name}</h3>
+          <p className="text-slate-600 text-sm leading-relaxed break-words line-clamp-3">{newsletter.description}</p>
         </div>
 
         {/* Hover overlay */}
@@ -326,7 +385,7 @@ const App = () => {
   // Landing Page
   if (currentPage === 'landing') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-100 flex flex-col justify-center items-center relative px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-100 flex flex-col justify-center items-center relative overflow-hidden px-4">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -334,8 +393,8 @@ const App = () => {
         </div>
 
         {/* Main content */}
-        <div className="text-center z-10 max-w-4xl">
-          <h1 className="text-7xl font-gideon md:text-9xl font-black mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-none">
+        <div className="text-center z-10 max-w-4xl mx-auto px-4 sm:px-6">
+          <h1 className="text-4xl sm:text-5xl md:text-[8rem] font-gideon font-black mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight sm:leading-tight md:leading-none">
             {text}
           </h1>
           
@@ -343,19 +402,48 @@ const App = () => {
             <p className="text-3xl md:text-4xl font-bold text-slate-800 leading-tight">
               Turn 20 newsletters into 1.
             </p>
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
-              Stop drowning in newsletter overload. Select your favorites and get a beautiful, personalized digest delivered to your inbox every morning.
-            </p>
           </div>
 
-          {/* Get Started Button */}
-          <button
-            onClick={goToNewsletters}
-            className="group relative bg-gradient-to-r from-gray-300 to-gray-500 text-white px-12 py-6 rounded-2xl font-bold text-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
-          >
-            <span className="relative z-10">Get Started →</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </button>
+          {/* Waitlist + Beta Access */}
+          <div className=" rounded-2xl p-4 sm:p-6 border border-white/20 text-center max-w-2xl mx-auto mb-4">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-4">Join Waitlist</h2>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                className="min-w-0 w-full sm:w-auto flex-1 px-3 py-2 text-base text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+              />
+              <button
+                onClick={handleJoinWaitlist}
+                className="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow hover:shadow-md"
+              >
+                Join
+              </button>
+            </div>
+          </div>
+
+          {/* Small, separate beta access row */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-left">
+              <input
+                type="password"
+                placeholder="Beta access code"
+                value={betaCode}
+                onChange={(e) => setBetaCode(e.target.value)}
+                className="min-w-0 w-full sm:w-64 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 bg-white/80 rounded-md border border-slate-200 focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+              />
+              <button
+                onClick={handleBetaAccess}
+                className="w-full sm:w-auto px-3 py-2 rounded-md text-sm font-medium bg-slate-800 text-white hover:bg-slate-700 transition-all duration-300 shadow hover:shadow-sm"
+              >
+                Enter beta
+              </button>
+            </div>
+          </div>
+
+          {/* Removed Get Started button to simplify the landing */}
         </div>
       </div>
     );
@@ -377,12 +465,12 @@ const App = () => {
       </div>
 
       {/* Top Controls Row */}
-      <div className="max-w-7xl mx-auto px-6 mb-12">
-        <div className="flex flex-col lg:flex-row justify-between items-stretch gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-4 2xl:px-0 mb-12">
+        <div className="flex flex-col lg:flex-row justify-between items-stretch gap-6 sm:gap-8">
           {/* Category Selection - Left Side */}
           <div className="flex-1 flex flex-col justify-center">
-            <h3 className="text-lg font-semibold text-slate-700 mb-3">Categories</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className="text-lg font-semibold text-slate-700 mb-3">{categoriesText}</h3>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {categories.map((category) => (
                 <button
                   key={category}
@@ -405,28 +493,28 @@ const App = () => {
           </div>
 
           {/* User Info Form - Right Side */}
-          <div className="flex-1 max-w-lg flex flex-col justify-center">
+          <div className="flex-1 max-w-lg flex flex-col justify-center min-w-0">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 shadow border border-white/20">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <input
                   type="text"
                   placeholder="Name"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  className="flex-1 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+                  className="min-w-0 w-full sm:w-auto flex-1 px-3 py-2 text-base text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
                 />
                 <input
-                  type="email"
+                  type="text"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+                  className="min-w-0 w-full sm:w-auto flex-1 px-3 py-2 text-base text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
                 />
                 <button
                   onClick={handleSubmit}
-                  className="px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-gray-400 to-gray-600 hover:from-blue-500 hover:to-purple-500 text-white transition-all duration-300 shadow hover:shadow-md"
+                  className="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-gray-400 to-gray-600 hover:from-blue-500 hover:to-purple-500 text-white transition-all duration-300 shadow hover:shadow-md"
                 >
-                  Submit
+                  {submitText}
                 </button>
               </div>
             </div>
@@ -435,16 +523,16 @@ const App = () => {
       </div>
 
       {/* Newsletter Cards - Left Aligned */}
-      <div className="max-w-7xl mx-auto px-6 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-4 2xl:px-0 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 min-w-0">
           {getFilteredNewsletters().map(renderNewsletterCard)}
         </div>
       </div>
 
       {/* Selected counter */}
       {selectedNewsletters.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full shadow-xl backdrop-blur-sm">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 pb-[env(safe-area-inset-bottom)]">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full shadow-xl backdrop-blur-sm max-w-[calc(100vw-2rem)] truncate">
             <span className="font-semibold">
               {selectedNewsletters.length} newsletter{selectedNewsletters.length === 1 ? '' : 's'} selected
             </span>

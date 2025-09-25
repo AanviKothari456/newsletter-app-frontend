@@ -210,3 +210,18 @@ body {
   font-size: 0.85rem;
   opacity: 0.85;
 }
+
+/* Global mobile-safe guardrails */
+html, body {
+  overflow-x: hidden;
+}
+
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Allow flex/grid children to shrink and wrap safely */
+.flex > *, .grid > * {
+  min-width: 0;
+}
