@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import supabase from './supabaseClient';
+import { useTypewriter } from 'react-simple-typewriter';
 
 const App = () => {
+  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'newsletters', 'confirmed'
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [selectedNewsletters, setSelectedNewsletters] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [preference, setPreference] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const images = {
     ycombinator: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Y_Combinator_logo.svg/1200px-Y_Combinator_logo.svg.png',
-    techcrunch: 'https://yt3.googleusercontent.com/ytc/AIdro_kCWnlG0S5KmFxBckuWUwXOaIsmZL7hBkuXa4CFY27vtk_y=s900-c-k-c0x00ffffff-no-rj',
+    techcrunch: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcScyrWdQdXdEbLIAZIPlZKzOHcrr5MGh907eQ&s',
     benatnextplay: 'https://media.licdn.com/dms/image/v2/D4D03AQG-j5fMe__BXA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1719428900642?e=2147483647&v=beta&t=4qW0QM9AZzkfhHR3Yj8gYJkqjno2uSlNZ9_f_1x91UU',
     jamesclear: 'https://assets.penguinrandomhouse.com/wp-content/uploads/2019/05/18130129/PRH-James-Clear-Interview-Article-Header-1080x1080-1.png',
     hankandjohn: 'https://hankandjohn.com/wp-content/uploads/2021/10/Copyofhankandjohn.jpg',
@@ -22,34 +26,60 @@ const App = () => {
     axiosprorata: 'https://megaphone.imgix.net/podcasts/d4edce68-0ed5-11e9-ae30-47e879b95561/image/53aa1a75b60e36e8a5daaa6f9fde44382b12e7d7db1ee809e53544ddb1cc2126a09b70662657dfa250798d6ffc0f75f332b7bc6e0a6d1fa3009a965dbab2920f.jpeg?ixlib=rails-4.3.1&w=400&h=400',
     motleyfool: 'https://www.nasdaq.com/sites/acquia.prod/files/2022/01/11/Untitled-1.jpg',
     morningbrew: 'https://yt3.googleusercontent.com/OyiAettVs75KkSwtJiEGG8AxJu4XZhP0YTz8w723i9gGWHssDhO-e6hpyqnEhr1nEWbc8OGJ1w=s900-c-k-c0x00ffffff-no-rj',
-    crawlsf: 'https://i0.wp.com/www.july4sf.com/wp-content/uploads/2024/02/St-Patricks-Day-Tickets-Pub-Crawl.jpeg?resize=394%2C394&ssl=1'
+    crawlsf: 'https://i0.wp.com/www.july4sf.com/wp-content/uploads/2024/02/St-Patricks-Day-Tickets-Pub-Crawl.jpeg?resize=394%2C394&ssl=1',
+    eddies_list: 'https://substack-post-media.s3.amazonaws.com/public/images/1a3f96bf-3461-40ea-be77-14a03f5742e1_795x795.png',
+    the_athletic: 'https://wp.theringer.com/wp-content/uploads/2022/01/NYT_Athletic_Ringer_v2.jpg',
+    the_daily_stoic: 'https://i.scdn.co/image/ab6765630000ba8a8488dbb4b623f432a3b6a673',
+    nyt: 'https://play-lh.googleusercontent.com/gfmioo4VBEtPucdVNIYAyaqruXFRWDCc0nsBLORfOS0_s9r5r00Bn_IpjhCumkEusg',
+    the_contrarian: 'https://substackcdn.com/image/fetch/$s_!2bFp!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Ff036e142-cadf-4898-8289-f16bb428f7bb_1000x1000.png',
+    tldr: 'https://pbs.twimg.com/profile_images/1069810843951411200/pNNOq5nL_400x400.jpg',
+    al_jazeera: 'https://yt3.googleusercontent.com/TEkAt4v2DTqLiU_0pmLza5ZZndnaUXOjVuAFthuaGvwGyCYpO4H85KXOBxdMzrJ8cZu2DoECRA=s900-c-k-c0x00ffffff-no-rj',
+    sahil_bloom: 'https://i.scdn.co/image/ab67656300005f1fe66c722d6c52b37b5000c73f',
+    the_hustle: 'https://20627419.fs1.hubspotusercontent-na1.net/hubfs/20627419/The%20Hustle/Logos/The%20Hustle%20Logo.png',
+    nowiknow: 'https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/NowIKnow.png/250px-NowIKnow.png',
   }
   const newsletters = [
-    // Tech
     { id: 1, name: 'Y-Combinator', description: 'Keep up with the latest news, launches, jobs, and events from the YC community.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.ycombinator, category: 'Tech' },
-    { id: 2, name: 'TechCrunch', description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital', color: '#28A745', textColor: '#FFFFFF', isImage: true, icon: images.techcrunch, category: 'Tech' },
-    { id: 3, name: 'Ben @ next-play', description: 'Helping world-class talent discover what\'s next through next-play', color: '#F0E5D8', textColor: '#2C3E50', icon: '👨‍💼', isImage: true, icon: images.benatnextplay, category: 'Tech' },
-    
-    // Wellness
-    { id: 6, name: 'James Clear', description: '3-2-1 newsletter by the author of Atomic Habits', isImage: true, icon: images.jamesclear, color: '#e7e8c9ff', textColor: '#000000ff', category: 'Wellness' },
-    { id: 7, name: "We're Here, Hank and John", description: 'Fun and thoughtful commentary on culture and news', isImage: true, icon: images.hankandjohn, color: '#5B6BF2', textColor: '#FFFFFF', category: 'Wellness' },
-    { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights', isImage: true, icon: images.timferriss, color: '#9B59B6', textColor: '#FFFFFF', category: 'Wellness' },
-    { id: 9, name: 'The Art and Science of Happiness', description: 'Insights on mental health and well-being', isImage: true, icon: images.artandscienceofhappiness,color: '#1ABC9C', textColor: '#FFFFFF', category: 'Wellness' },
-    { id: 10, name: 'Now I Know', description: 'Interesting facts and trivia', isImage: true, icon: images.nowiknow, color: '#F39C12', textColor: '#000000', category: 'Wellness' },
-
-    // Berkeley
-    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community', isImage: true, icon: images.builtbyberkeley,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley' },
-    { id: 12, name: 'SCET', description: 'Updates and news from the Berkeley community', isImage: true, icon: images.scet,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley' },
-
-    //Finance
-    { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you', isImage: true, icon: images.need2know,color: '#F7C548', textColor: '#000000', category: 'Finance' },
-    { id: 13, name: 'Axios Pro Rata', description: 'Daily finance insights and market news', isImage: true, icon: images.axiosprorata,color: '#baf693ff', textColor: '#000000', category: 'Finance' },
-    { id: 14, name: 'Motley Fool', description: 'Investment tips and financial news', isImage: true, icon: images.motleyfool,color: '#807ee5ff', textColor: '#FFFFFF', category: 'Finance' },
-    { id: 4, name: 'MorningBrew', description: 'Morning Brew delivers quick and insightful updates about the business world every day', isImage: true, icon: images.morningbrew,color: '#3498DB', textColor: '#FFFFFF', category: 'Finance' },
-    { id: 15, name: 'CrawlSF', description: 'Keep up with the latest news, launches, jobs, and events from the YC community.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.crawlsf, category: 'SF Life' },
+    { id: 2, name: 'TechCrunch', description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital.', color: '#28A745', textColor: '#FFFFFF', isImage: true, icon: images.techcrunch, category: 'Tech' },
+    { id: 3, name: 'Ben @ Next-play', description: 'Helping world-class talent discover what\'s next through next-play.', color: '#F0E5D8', textColor: '#2C3E50', isImage: true, icon: images.benatnextplay, category: 'Tech' },
+    { id: 6, name: 'James Clear, Atomic Habits', description: '3-2-1 newsletter by the author of Atomic Habits.', isImage: true, icon: images.jamesclear, color: '#e7e8c9ff', textColor: '#000000ff', category: 'Wellness' },
+    { id: 7, name: "We're Here, Hank and John", description: 'Fun and thoughtful commentary on culture and news.', isImage: true, icon: images.hankandjohn, color: '#5B6BF2', textColor: '#FFFFFF', category: 'Wellness' },
+    { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights.', isImage: true, icon: images.timferriss, color: '#9B59B6', textColor: '#FFFFFF', category: 'Wellness' },
+    { id: 9, name: 'The Art and Science of Happiness', description: 'Insights on mental health and well-being.', isImage: true, icon: images.artandscienceofhappiness,color: '#1ABC9C', textColor: '#FFFFFF', category: 'Wellness' },
+    { id: 10, name: 'Now I Know', description: 'Interesting facts and trivia.', isImage: true, icon: images.nowiknow, color: '#F39C12', textColor: '#000000', category: 'Wellness' },
+    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community.', isImage: true, icon: images.builtbyberkeley,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley' },
+    { id: 12, name: 'SCET', description: 'Updates and news from the Berkeley community.', isImage: true, icon: images.scet,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley' },
+    { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you.', isImage: true, icon: images.need2know,color: '#F7C548', textColor: '#000000', category: 'Finance' },
+    { id: 13, name: 'Axios Pro Rata', description: 'Daily finance insights and market news.', isImage: true, icon: images.axiosprorata,color: '#baf693ff', textColor: '#000000', category: 'Finance' },
+    { id: 14, name: 'Motley Fool', description: 'Investment tips and financial news.', isImage: true, icon: images.motleyfool,color: '#807ee5ff', textColor: '#FFFFFF', category: 'Finance' },
+    { id: 4, name: 'Morning Brew', description: 'Morning Brew delivers quick and insightful updates about the business world every day.', isImage: true, icon: images.morningbrew,color: '#3498DB', textColor: '#FFFFFF', category: 'Finance' },
+    { id: 15, name: 'SF Crawl', description: 'Discover the best things to do in San Francisco.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.crawlsf, category: 'SF Life' },
+    { id: 16, name: "Eddie's List", description: 'SF Local guide with weekly takes on things to do.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.eddies_list, category: 'SF Life' },
+    { id: 17, name: "The Athletic", description: 'Unrivaled sports coverage across every team you care about and every league you follow. Get breaking news, powerful stories and smart analysis from the best.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_athletic, category: 'Sports' },
+    { id: 18, name: "The Daily Stoic", description: "Showcasing the philosophy designed to make us more resilient, happier, more virtuous and more wise.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_daily_stoic, category: 'Wellness' },
+    { id: 19, name: "The Contrarian", description: "Unflinching journalism in defense of democracy.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_contrarian, category: 'World News' },
+    { id: 20, name: "New York Times", description: "The highly respected, global news publication known for its investigative journalism and coverage of world events.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.nyt, category: 'World News' },
+    { id: 21, name: "TLDR", description: "The most interesting stories in startups, tech and programming!", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.tldr, category: 'Tech' },
+    { id: 22, name: "Al Jazeera", description: "News, analysis from the Middle East & worldwide.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.al_jazeera, category: 'World News'},
+    { id: 23, name: "Sahil Bloom", description: "Actionable ideas to help you build a high-performing, healthy, wealthy life.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.sahil_bloom, category: 'Wellness'},
+    { id: 24, name: "The Hustle", description: "Keeping 2M+ innovators in the loop with stories on business, tech, and the internet.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_hustle, category: 'Tech'},
   ];
 
-  const categories = ['Tech', 'SF Life', 'Wellness', 'Berkeley', 'Finance'];
+  const [text] = useTypewriter({
+    words: ["NewsKiller"],
+    typeSpeed: 53,
+    loop: 3,
+  });
+
+  const categories = ['All', 'Tech', 'Sports', 'World News', 'SF Life', 'Wellness', 'Berkeley', 'Finance'];
+
+  const goToNewsletters = () => {
+    setCurrentPage('newsletters');
+  };
+
+  const goBackToLanding = () => {
+    setCurrentPage('landing');
+  };
 
   const toggleNewsletter = (newsletterId) => {
     setSelectedNewsletters(prev =>
@@ -59,6 +89,7 @@ const App = () => {
     );
   };
 
+  // Main submit handler for newsletter selection
   const handleSubmit = async () => {
     if (!userName.trim() || !email.trim()) {
       alert('Please fill in both name and email fields.');
@@ -83,7 +114,8 @@ const App = () => {
             email,
             newsletters: selectedNewsletters.map(
               id => newsletters.find(n => n.id === id).name
-            )
+            ),
+            user_profile: "pee" || null,
           }
         ], { onConflict: ['email'] });
 
@@ -123,6 +155,108 @@ const App = () => {
     );
   }
 
+  // Preference submit handler for confirmed page
+  const handlePreferenceSubmit = async () => {
+    if (!preference.trim()) {
+      alert('Please select or enter a preference.');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("users")
+        .update({ user_profile: preference })
+        .eq("email", email);
+
+      if (error) {
+        console.error("Supabase update error:", error.message);
+        alert('❌ Something went wrong saving your preference.');
+      } else {
+        setSubmitted(true);
+      }
+    } catch (err) {
+      console.error('Error updating preference:', err);
+      alert('❌ Something went wrong. Try again later.');
+    }
+  };
+
+  if (currentPage === 'confirmed') {
+    const options = [
+      "Short and sweet; focus on AI",
+      "Pure facts and minimal commentary",
+      "Highlight startups that just raised and might be hiring"
+    ];
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-200 flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-300 to-gray-500  rounded-full blur-lg opacity-30 animate-pulse"></div>
+            <div className="relative w-24 h-24 bg-gradient-to-r from-gray-300 to-gray-500  rounded-full flex items-center justify-center text-white text-4xl font-bold mx-auto mb-8 shadow-xl">
+              ✓
+            </div>
+          </div>
+
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
+            You're All Set! 🎉
+          </h1>
+          <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+            Your personalized digest will arrive in your inbox tomorrow morning.
+          </p>
+
+          {/* Optional preference form */}
+          {!submitted ? (
+            <div className="space-y-4 mb-8">
+              <h2 className="text-xl font-semibold text-slate-700">
+                Want to customize the tone of your summaries?
+              </h2>
+              <div className="grid gap-2">
+                {options.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setPreference(opt)}
+                    className={`px-4 py-2 rounded-lg border transition ${
+                      preference === opt
+                        ? "bg-gradient-to-r from-gray-300 to-gray-500 text-white"
+                        : "bg-white text-slate-700 border-slate-300 hover:border-purple-500"
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                placeholder="Or describe your style..."
+                value={preference}
+                onChange={(e) => setPreference(e.target.value)}
+                className="w-full mt-2 p-3 border rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                rows={3}
+              />
+              <button
+                onClick={handlePreferenceSubmit}
+                className="w-full mt-4 bg-gradient-to-r from-gray-300 to-gray-500  text-white font-semibold py-3 rounded-lg hover:bg-purple-600 transition"
+              >
+                Save Preference
+              </button>
+            </div>
+          ) : (
+            <p className="text-emerald-600 font-medium mb-8">
+              ✅ Saved your preference!
+            </p>
+          )}
+
+          <button
+            onClick={() => setCurrentPage('landing')}
+            className="group relative bg-gradient-to-r from-slate-900 to-slate-700 text-white px-10 py-4 rounded-xl font-semibold hover:from-slate-800 hover:to-slate-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            <span className="relative z-10">Start Over</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const renderNewsletterCard = (newsletter) => {
     const isSelected = selectedNewsletters.includes(newsletter.id);
 
@@ -130,13 +264,13 @@ const App = () => {
       <div
         key={newsletter.id}
         onClick={() => toggleNewsletter(newsletter.id)}
-        className={`group relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 bg-white flex-shrink-0 w-80
+        className={`group relative cursor-pointer rounded-2xl overflow-hidden transition-all duration-300 bg-white
           ${isSelected
             ? 'ring-4 ring-blue-500 shadow-2xl transform scale-105'
             : 'hover:shadow-xl hover:transform hover:scale-105 shadow-lg'
           }
         `}
-        >
+      >
         {/* Background glow effect */}
         <div className={`absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 rounded-2xl -z-10 blur-xl
           ${isSelected ? 'opacity-30' : 'group-hover:opacity-20'}
@@ -149,17 +283,22 @@ const App = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10"></div>
           <div className="text-center relative z-10">
-              <img src={newsletter.icon} />
+            {newsletter.isImage && newsletter.icon ? (
+              <img 
+                src={newsletter.icon} 
+                alt={newsletter.name}
+                className="w-20 h-20 object-contain rounded-lg"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'block';
+                }}
+              />
+            ) : (
+              <div className="text-6xl">{newsletter.icon || '📰'}</div>
+            )}
+            {/* Fallback emoji for broken images */}
+            <div className="text-6xl hidden">📰</div>
           </div>
-
-          {/* Selected indicator with animation */}
-          {isSelected && (
-            <div className="absolute top-4 right-4 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-          )}
         </div>
 
         {/* Card content with improved typography */}
@@ -176,124 +315,142 @@ const App = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-100">
-      {/* Header */}
-      <div className="relative text-center pt-6 pb-6">
-        <div className="absolute inset-0"></div>
-        <div className="relative z-10">
-          <h1 className="text-7xl font-gideon md:text-8xl font-black mb-1 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight">
-            NewsKiller
+  // Get filtered newsletters based on active category
+  const getFilteredNewsletters = () => {
+    if (activeCategory === 'All') {
+      return newsletters;
+    }
+    return newsletters.filter(n => n.category === activeCategory);
+  };
+
+  // Landing Page
+  if (currentPage === 'landing') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-100 flex flex-col justify-center items-center relative px-4">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        {/* Main content */}
+        <div className="text-center z-10 max-w-4xl">
+          <h1 className="text-7xl font-gideon md:text-9xl font-black mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-none">
+            {text}
           </h1>
-          <div className="max-w-3xl mx-auto px-4">
-            <p className="text-2xl font-medium text-slate-700 mb-3">Turn 20 newsletters into 1.</p>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              Click your favorites and get a beautiful digest delivered to your inbox every morning.
+          
+          <div className="space-y-6 mb-12">
+            <p className="text-3xl md:text-4xl font-bold text-slate-800 leading-tight">
+              Turn 20 newsletters into 1.
+            </p>
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed max-w-3xl mx-auto">
+              Stop drowning in newsletter overload. Select your favorites and get a beautiful, personalized digest delivered to your inbox every morning.
             </p>
           </div>
+
+          {/* Get Started Button */}
+          <button
+            onClick={goToNewsletters}
+            className="group relative bg-gradient-to-r from-gray-300 to-gray-500 text-white px-12 py-6 rounded-2xl font-bold text-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
+          >
+            <span className="relative z-10">Get Started →</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </button>
         </div>
-         
+      </div>
+    );
+  }
+
+  // Newsletter Selection Page
+  return (
+    <div className="bg-gradient-to-br from-slate-200 via-white to-slate-100 min-h-screen">
+      {/* Header with back button and top controls */}
+      <div className="relative pt-8 pb-6">
+        <button
+          onClick={goBackToLanding}
+          className="absolute left-6 top-8 flex items-center text-slate-600 hover:text-slate-900 transition-colors group"
+        >
+          <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m0 0l7-7m-7 7l7 7" />
+          </svg>
+        </button>
       </div>
 
-      {/* User Info Form */}
-      <div className="max-w-2xl mx-auto px-6 pb-6">
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="relative group">
-              <input
-                type="text"
-                placeholder="name"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                className="w-full text-center px-4 py-3 bg-slate-50 rounded-lg text-slate-900 placeholder-slate-500 border-2 border-transparent focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 shadow-sm text-sm"
-              />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-sm"></div>
+      {/* Top Controls Row */}
+      <div className="max-w-7xl mx-auto px-6 mb-12">
+        <div className="flex flex-col lg:flex-row justify-between items-stretch gap-8">
+          {/* Category Selection - Left Side */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h3 className="text-lg font-semibold text-slate-700 mb-3">Categories</h3>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveCategory(category)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    activeCategory === category
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                      : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 shadow-sm border border-slate-200'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
+          </div>
 
-            <div className="relative group">
-              <input
-                type="email"
-                placeholder="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 text-center py-3 bg-slate-50 rounded-lg text-slate-900 placeholder-slate-500 border-2 border-transparent focus:outline-none focus:border-blue-500 focus:bg-white transition-all duration-300 shadow-sm text-sm"
-              />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 -z-10 blur-sm"></div>
+          {/* Separator */}
+          <div className="hidden lg:flex items-center">
+            <div className="w-px h-full bg-slate-300"></div>
+          </div>
+
+          {/* User Info Form - Right Side */}
+          <div className="flex-1 max-w-lg flex flex-col justify-center">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 shadow border border-white/20">
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="flex-1 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="flex-1 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 bg-slate-50 rounded-md border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-gray-400 to-gray-600 hover:from-blue-500 hover:to-purple-500 text-white transition-all duration-300 shadow hover:shadow-md"
+                >
+                  Submit
+                </button>
+              </div>
             </div>
-
-            <button
-              onClick={handleSubmit}
-              className="group bg-gradient-to-r from-blue-500 to-purple-500 relative text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm"
-            >
-              <span className="relative z-10">submit</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-600 rounded-lg opacity-0  transition-opacity duration-300"></div>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Newsletter Categories with Horizontal Scrolling */}
-      <div className="pb-20">
-        {categories.map((category) => {
-          const categoryNewsletters = newsletters.filter(n => n.category === category);
-          const needsScroll = categoryNewsletters.length > 3;
-          
-          return (
-            <div key={category} className="mb-12">
-              {/* Category Header - Centered */}
-              <div className="text-center mb-8">
-                <h2 className="text-4xl font-gideon font-bold mb-2">{category}</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto"></div>
-              </div>
-
-              {/* Scrolling Container */}
-              <div className="relative">
-                {/* Fade edges - only show if content overflows */}
-                {needsScroll && (
-                  <>
-                    <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
-                    <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
-                  </>
-                )}
-                
-                {/* Cards container */}
-                <div className={`overflow-x-auto scrollbar-hide ${!needsScroll ? 'flex justify-center' : ''}`}>
-                  <div 
-                    className={`flex space-x-8 pb-4 ${needsScroll ? 'pl-12' : 'px-6'}`}
-                    style={{ 
-                      width: needsScroll ? 'max-content' : 'auto'
-                    }}
-                  >
-                    {categoryNewsletters.map(renderNewsletterCard)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Newsletter Cards - Left Aligned */}
+      <div className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {getFilteredNewsletters().map(renderNewsletterCard)}
+        </div>
       </div>
 
       {/* Selected counter */}
       {selectedNewsletters.length > 0 && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full shadow-xl backdrop-blur-sm">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full shadow-xl backdrop-blur-sm">
             <span className="font-semibold">
               {selectedNewsletters.length} newsletter{selectedNewsletters.length === 1 ? '' : 's'} selected
             </span>
           </div>
         </div>
       )}
-
-      {/* Custom scrollbar styles */}
-      <style jsx>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };
