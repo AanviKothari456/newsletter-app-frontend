@@ -3,7 +3,7 @@ import supabase from './supabaseClient';
 import { useTypewriter } from 'react-simple-typewriter';
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'newsletters', 'confirmed'
+  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'beta', 'newsletters', 'confirmed'
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [selectedNewsletters, setSelectedNewsletters] = useState([]);
@@ -97,8 +97,16 @@ const App = () => {
     setCurrentPage('newsletters');
   };
 
+  const goToBeta = () => {
+    setCurrentPage('beta');
+  };
+
   const goBackToLanding = () => {
     setCurrentPage('landing');
+  };
+
+  const goBackToBeta = () => {
+    setCurrentPage('beta');
   };
 
   const toggleNewsletter = (newsletterId) => {
@@ -179,7 +187,7 @@ const App = () => {
 
   // Beta access handler
   const handleBetaAccess = () => {
-    if (betaCode.trim() === 'newskiller-beta') {
+    if (betaCode.trim().toLowerCase() === 'newskiller-beta') {
       setCurrentPage('newsletters');
     } else {
       alert('Incorrect beta code.');
@@ -382,6 +390,70 @@ const App = () => {
     return newsletters.filter(n => n.category === activeCategory);
   };
 
+  // Beta Access Page
+  if (currentPage === 'beta') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-100 flex flex-col justify-center items-center relative overflow-hidden px-4">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        {/* Back button */}
+        <button
+          onClick={goBackToLanding}
+          className="absolute top-6 left-6 flex items-center text-slate-600 hover:text-slate-900 transition-colors group z-10"
+        >
+          <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m0 0l7-7m-7 7l7 7" />
+          </svg>
+          Back
+        </button>
+
+        {/* Main content */}
+        <div className="text-center z-10 max-w-2xl mx-auto px-4 sm:px-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight">
+            Beta Access
+          </h1>
+          
+          <div className="space-y-6 mb-12">
+            <p className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed">
+              Enter your beta access code to start using NewsKiller
+            </p>
+          </div>
+
+          {/* Beta Access Form */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/20 text-center max-w-lg mx-auto mb-8 shadow-lg">
+            <div className="space-y-4">
+              <input
+                type="password"
+                placeholder="Beta access code"
+                value={betaCode}
+                onChange={(e) => setBetaCode(e.target.value)}
+                className="w-full px-4 py-3 text-base text-slate-900 placeholder-slate-500 bg-slate-50 rounded-lg border border-transparent focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleBetaAccess();
+                  }
+                }}
+              />
+              <button
+                onClick={handleBetaAccess}
+                className="w-full px-6 py-3 rounded-lg text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow hover:shadow-md"
+              >
+                Access Beta
+              </button>
+            </div>
+            <p className="text-sm text-slate-500 mt-4">
+              Don't have a beta code? Join our waitlist to get early access.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Landing Page
   if (currentPage === 'landing') {
     return (
@@ -394,18 +466,18 @@ const App = () => {
 
         {/* Main content */}
         <div className="text-center z-10 max-w-4xl mx-auto px-4 sm:px-6">
-          <h1 className="text-4xl sm:text-5xl md:text-[8rem] font-gideon font-black mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight sm:leading-tight md:leading-none">
+          <h1 className="text-[4rem] md:text-[8rem] font-gideon font-black mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight sm:leading-tight md:leading-none">
             {text}
           </h1>
           
           <div className="space-y-6 mb-12">
-            <p className="text-3xl md:text-4xl font-bold text-slate-800 leading-tight">
+            <p className="text-2xl md:text-4xl font-bold text-slate-800 leading-tight">
               Turn 20 newsletters into 1.
             </p>
           </div>
 
-          {/* Waitlist + Beta Access */}
-          <div className=" rounded-2xl p-4 sm:p-6 border border-white/20 text-center max-w-2xl mx-auto mb-4">
+          {/* Waitlist */}
+          <div className=" rounded-2xl p-4 sm:p-6 border border-white/20 text-center max-w-2xl mx-auto mb-8">
             <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-4">Join Waitlist</h2>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <input
@@ -424,23 +496,14 @@ const App = () => {
             </div>
           </div>
 
-          {/* Small, separate beta access row */}
+          {/* Small beta access button */}
           <div className="max-w-2xl mx-auto mb-8">
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-left">
-              <input
-                type="password"
-                placeholder="Beta access code"
-                value={betaCode}
-                onChange={(e) => setBetaCode(e.target.value)}
-                className="min-w-0 w-full sm:w-64 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 bg-white/80 rounded-md border border-slate-200 focus:outline-none focus:border-blue-400 focus:bg-white transition-all duration-300 shadow-sm"
-              />
-              <button
-                onClick={handleBetaAccess}
-                className="w-full sm:w-auto px-3 py-2 rounded-md text-sm font-medium bg-slate-800 text-white hover:bg-slate-700 transition-all duration-300 shadow hover:shadow-sm"
-              >
-                Enter beta
-              </button>
-            </div>
+            <button
+              onClick={goToBeta}
+              className="text-sm text-slate-600 hover:text-slate-800 underline transition-colors duration-200"
+            >
+              beta access
+            </button>
           </div>
 
           {/* Removed Get Started button to simplify the landing */}
