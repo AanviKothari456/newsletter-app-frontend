@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import supabase from './supabaseClient';
 import { useTypewriter } from 'react-simple-typewriter';
+import TextTyping from './textTyping';
 
 const App = () => {
   const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'beta', 'newsletters', 'confirmed'
@@ -8,12 +9,16 @@ const App = () => {
   const [email, setEmail] = useState('');
   const [selectedNewsletters, setSelectedNewsletters] = useState([]);
   const [confirmed, setConfirmed] = useState(false);
+  const [showBlurb, setShowBlurb] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [preference, setPreference] = useState("");
   const [submitted, setSubmitted] = useState(false);
   // Waitlist + Beta access state
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [betaCode, setBetaCode] = useState('');
+  // Post-submit care-about state
+  const [careAbout, setCareAbout] = useState([]);
+  const [careSubmitted, setCareSubmitted] = useState(false);
 
   const images = {
     ycombinator: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Y_Combinator_logo.svg/1200px-Y_Combinator_logo.svg.png',
@@ -42,30 +47,30 @@ const App = () => {
     nowiknow: 'https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/NowIKnow.png/250px-NowIKnow.png',
   }
   const newsletters = [
-    { id: 1, name: 'Y-Combinator', description: 'Keep up with the latest news, launches, jobs, and events from the YC community.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.ycombinator, category: 'Tech' },
-    { id: 2, name: 'TechCrunch', description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital.', color: '#28A745', textColor: '#FFFFFF', isImage: true, icon: images.techcrunch, category: 'Tech' },
-    { id: 3, name: 'Ben @ Next-play', description: 'Helping world-class talent discover what\'s next through next-play.', color: '#F0E5D8', textColor: '#2C3E50', isImage: true, icon: images.benatnextplay, category: 'Tech' },
-    { id: 6, name: 'James Clear, Atomic Habits', description: '3-2-1 newsletter by the author of Atomic Habits.', isImage: true, icon: images.jamesclear, color: '#e7e8c9ff', textColor: '#000000ff', category: 'Wellness' },
-    { id: 7, name: "We're Here, Hank and John", description: 'Fun and thoughtful commentary on culture and news.', isImage: true, icon: images.hankandjohn, color: '#5B6BF2', textColor: '#FFFFFF', category: 'Wellness' },
-    { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights.', isImage: true, icon: images.timferriss, color: '#9B59B6', textColor: '#FFFFFF', category: 'Wellness' },
-    { id: 9, name: 'The Art and Science of Happiness', description: 'Insights on mental health and well-being.', isImage: true, icon: images.artandscienceofhappiness,color: '#1ABC9C', textColor: '#FFFFFF', category: 'Wellness' },
-    { id: 10, name: 'Now I Know', description: 'Interesting facts and trivia.', isImage: true, icon: images.nowiknow, color: '#F39C12', textColor: '#000000', category: 'Wellness' },
-    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community.', isImage: true, icon: images.builtbyberkeley,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley' },
-    { id: 12, name: 'SCET', description: 'Updates and news from the Berkeley community.', isImage: true, icon: images.scet,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley' },
-    { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you.', isImage: true, icon: images.need2know,color: '#F7C548', textColor: '#000000', category: 'Finance' },
-    { id: 13, name: 'Axios Pro Rata', description: 'Daily finance insights and market news.', isImage: true, icon: images.axiosprorata,color: '#baf693ff', textColor: '#000000', category: 'Finance' },
-    { id: 14, name: 'Motley Fool', description: 'Investment tips and financial news.', isImage: true, icon: images.motleyfool,color: '#807ee5ff', textColor: '#FFFFFF', category: 'Finance' },
-    { id: 4, name: 'Morning Brew', description: 'Morning Brew delivers quick and insightful updates about the business world every day.', isImage: true, icon: images.morningbrew,color: '#3498DB', textColor: '#FFFFFF', category: 'Finance' },
-    { id: 15, name: 'SF Crawl', description: 'Discover the best things to do in San Francisco.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.crawlsf, category: 'SF Life' },
-    { id: 16, name: "Eddie's List", description: 'SF Local guide with weekly takes on things to do.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.eddies_list, category: 'SF Life' },
-    { id: 17, name: "The Athletic", description: 'Unrivaled sports coverage across every team you care about and every league you follow. Get breaking news, powerful stories and smart analysis from the best.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_athletic, category: 'Sports' },
-    { id: 18, name: "The Daily Stoic", description: "Showcasing the philosophy designed to make us more resilient, happier, more virtuous and more wise.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_daily_stoic, category: 'Wellness' },
-    { id: 19, name: "The Contrarian", description: "Unflinching journalism in defense of democracy.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_contrarian, category: 'World News' },
-    { id: 20, name: "New York Times", description: "The highly respected, global news publication known for its investigative journalism and coverage of world events.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.nyt, category: 'World News' },
-    { id: 21, name: "TLDR", description: "The most interesting stories in startups, tech and programming!", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.tldr, category: 'Tech' },
-    { id: 22, name: "Al Jazeera", description: "News, analysis from the Middle East & worldwide.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.al_jazeera, category: 'World News'},
-    { id: 23, name: "Sahil Bloom", description: "Actionable ideas to help you build a high-performing, healthy, wealthy life.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.sahil_bloom, category: 'Wellness'},
-    { id: 24, name: "The Hustle", description: "Keeping 2M+ innovators in the loop with stories on business, tech, and the internet.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_hustle, category: 'Tech'},
+    { id: 1, name: 'Y-Combinator', description: 'Keep up with the latest news, launches, jobs, and events from the YC community.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.ycombinator, category: 'Tech', tags: ['Startups', 'YC'] },
+    { id: 2, name: 'TechCrunch', description: 'Global newspaper focusing on breaking news about tech, startups, and venture capital.', color: '#28A745', textColor: '#FFFFFF', isImage: true, icon: images.techcrunch, category: 'Tech', tags: ['Tech', 'Startups'] },
+    { id: 3, name: 'Ben @ Next-play', description: 'Helping world-class talent discover what\'s next through next-play.', color: '#F0E5D8', textColor: '#2C3E50', isImage: true, icon: images.benatnextplay, category: 'Tech', tags: ['Jobs', 'Hiring'] },
+    { id: 6, name: 'James Clear, Atomic Habits', description: '3-2-1 newsletter by the author of Atomic Habits.', isImage: true, icon: images.jamesclear, color: '#e7e8c9ff', textColor: '#000000ff', category: 'Wellness', tags: ['Habits', 'Productivity'] },
+    { id: 7, name: "We're Here, Hank and John", description: 'Fun and thoughtful commentary on culture and news.', isImage: true, icon: images.hankandjohn, color: '#5B6BF2', textColor: '#FFFFFF', category: 'Wellness', tags: ['Culture', 'Commentary'] },
+    { id: 8, name: 'Tim Ferriss', description: 'Productivity, lifestyle, and personal growth insights.', isImage: true, icon: images.timferriss, color: '#9B59B6', textColor: '#FFFFFF', category: 'Wellness', tags: ['Productivity', 'Lifestyle'] },
+    { id: 9, name: 'The Art and Science of Happiness', description: 'Insights on mental health and well-being.', isImage: true, icon: images.artandscienceofhappiness,color: '#1ABC9C', textColor: '#FFFFFF', category: 'Wellness', tags: ['Well-being', 'Psychology'] },
+    { id: 10, name: 'Now I Know', description: 'Interesting facts and trivia.', isImage: true, icon: images.nowiknow, color: '#F39C12', textColor: '#000000', category: 'Wellness', tags: ['Trivia', 'Facts'] },
+    { id: 11, name: 'Built by Berkeley', description: 'Updates and news from the Berkeley community.', isImage: true, icon: images.builtbyberkeley,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley', tags: ['Berkeley', 'Community'] },
+    { id: 12, name: 'SCET', description: 'Updates and news from the Berkeley community.', isImage: true, icon: images.scet,color: '#306998', textColor: '#FFFFFF', category: 'Berkeley', tags: ['Berkeley', 'Innovation'] },
+    { id: 5, name: 'Need2Know, by Cheddar', description: 'Daily news and insights curated for you.', isImage: true, icon: images.need2know,color: '#F7C548', textColor: '#000000', category: 'Finance', tags: ['Headlines', 'Daily Brief'] },
+    { id: 13, name: 'Axios Pro Rata', description: 'Daily finance insights and market news.', isImage: true, icon: images.axiosprorata,color: '#baf693ff', textColor: '#000000', category: 'Finance', tags: ['Finance', 'Deals'] },
+    { id: 14, name: 'Motley Fool', description: 'Investment tips and financial news.', isImage: true, icon: images.motleyfool,color: '#807ee5ff', textColor: '#FFFFFF', category: 'Finance', tags: ['Investing', 'Stocks'] },
+    { id: 4, name: 'Morning Brew', description: 'Morning Brew delivers quick and insightful updates about the business world every day.', isImage: true, icon: images.morningbrew,color: '#3498DB', textColor: '#FFFFFF', category: 'Finance', tags: ['Business', 'Daily Brief'] },
+    { id: 15, name: 'SF Crawl', description: 'Discover the best things to do in San Francisco.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.crawlsf, category: 'SF Life', tags: ['Events', 'SF'] },
+    { id: 16, name: "Eddie's List", description: 'SF Local guide with weekly takes on things to do.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.eddies_list, category: 'SF Life', tags: ['Local', 'Recommendations'] },
+    { id: 17, name: "The Athletic", description: 'Unrivaled sports coverage across every team you care about and every league you follow. Get breaking news, powerful stories and smart analysis from the best.', color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_athletic, category: 'Sports', tags: ['Sports', 'Analysis'] },
+    { id: 18, name: "The Daily Stoic", description: "Showcasing the philosophy designed to make us more resilient, happier, more virtuous and more wise.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_daily_stoic, category: 'Wellness', tags: ['Stoicism', 'Philosophy'] },
+    { id: 19, name: "The Contrarian", description: "Unflinching journalism in defense of democracy.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_contrarian, category: 'World News', tags: ['Politics', 'Opinion'] },
+    { id: 20, name: "New York Times", description: "The highly respected, global news publication known for its investigative journalism and coverage of world events.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.nyt, category: 'World News', tags: ['World', 'Breaking'] },
+    { id: 21, name: "TLDR", description: "The most interesting stories in startups, tech and programming!", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.tldr, category: 'Tech', tags: ['Tech', 'Programming'] },
+    { id: 22, name: "Al Jazeera", description: "News, analysis from the Middle East & worldwide.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.al_jazeera, category: 'World News', tags: ['Global', 'Middle East']},
+    { id: 23, name: "Sahil Bloom", description: "Actionable ideas to help you build a high-performing, healthy, wealthy life.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.sahil_bloom, category: 'Wellness', tags: ['Personal Growth', 'Wealth']},
+    { id: 24, name: "The Hustle", description: "Keeping 2M+ innovators in the loop with stories on business, tech, and the internet.", color: '#fc703dff', textColor: '#ffffffff', isImage: true, icon: images.the_hustle, category: 'Tech', tags: ['Business', 'Tech']},
   ];
 
   const [text] = useTypewriter({
@@ -116,14 +121,7 @@ const App = () => {
         : [...prev, newsletterId]
     );
   };
-  const TextTyping = (text) => {
-    const [typedText] = useTypewriter({
-      words: [text],
-      typeSpeed: 53,
-      loop: 3,
-    });
-    return typedText;
-  }
+  
 
   // Main submit handler for newsletter selection
   const handleSubmit = async () => {
@@ -174,7 +172,8 @@ const App = () => {
       const { error } = await supabase
         .from('waitlist_db')
         .upsert([
-          { email: waitlistEmail }
+          { email: waitlistEmail,
+           }
         ], { onConflict: ['email'] });
       if (error) throw error;
       alert('🎉 Added to the waitlist!');
@@ -199,17 +198,101 @@ const App = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-200 via-white to-slate-200 flex items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full blur-lg opacity-30 animate-pulse"></div>
-            <div className="relative w-24 h-24 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full flex items-center justify-center text-white text-4xl font-bold mx-auto mb-8 shadow-xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full blur-lg opacity-30 animate-pulse"></div>
+            <div className="relative w-24 h-24 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mx-auto mb-8 shadow-xl">
               ✓
             </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl font-gideon font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
             {youreSet}
           </h1>
           <p className="text-slate-600 text-lg mb-8 leading-relaxed">
             Your personalized digest will arrive in your inbox tomorrow morning.
           </p>
+
+          {/* Small form: what do you care about most? */}
+          {!careSubmitted ? (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-white/20 text-left mb-6">
+              <label className="block text-slate-800 font-medium mb-3">What do you care most about?</label>
+              
+              {/* Get unique tags from selected newsletters */}
+              {(() => {
+                const selectedTags = [...new Set(
+                  selectedNewsletters.flatMap(id => 
+                    newsletters.find(n => n.id === id)?.tags || []
+                  )
+                )];
+                
+                return selectedTags.length > 0 ? (
+                  <div className="mb-4">
+                    <p className="text-sm text-slate-600 mb-2">Based on your selections:</p>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {selectedTags.map(tag => (
+                        <button
+                          key={tag}
+                          onClick={() => {
+                            setCareAbout(prev => 
+                              prev.includes(tag) 
+                                ? prev.filter(t => t !== tag)
+                                : [...prev, tag]
+                            );
+                          }}
+                          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                            careAbout.includes(tag)
+                              ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+              
+              <input
+                type="text"
+                placeholder="Or type something custom..."
+                className="w-full px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-800 mb-3"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && e.target.value.trim()) {
+                    const customValue = e.target.value.trim();
+                    if (!careAbout.includes(customValue)) {
+                      setCareAbout(prev => [...prev, customValue]);
+                    }
+                    e.target.value = '';
+                  }
+                }}
+              />
+              <div className="text-center">
+                <button
+                  onClick={async () => {
+                    if (careAbout.length === 0) {
+                      alert('Please select or enter what you care about most.');
+                      return;
+                    }
+                    try {
+                      const { error } = await supabase
+                        .from('main_emails')
+                        .update({ profile: `The user cares about ${careAbout.join(', ')}` })
+                        .eq('email', email);
+                      if (error) throw error;
+                      setCareSubmitted(true);
+                    } catch (err) {
+                      console.error('Error updating care about:', err);
+                      alert('❌ Could not save your preference right now.');
+                    }
+                  }}
+                  className="px-6 py-2 rounded-md bg-gradient-to-r from-purple-500 to-purple-600 text-white font-medium"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-purple-600 font-medium mb-6 text-center">Saved what you care about most ✅</p>
+          )}
           <button
             onClick={() => window.location.reload()}
             className="group relative bg-gradient-to-r from-slate-900 to-slate-700 hover:from- text-white px-10 py-4 rounded-xl font-semibold hover:from-slate-800 hover:to-slate-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -413,8 +496,8 @@ const App = () => {
 
         {/* Main content */}
         <div className="text-center z-10 max-w-2xl mx-auto px-4 sm:px-6">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight">
-            Beta Access
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-gideon font-bold mb-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight leading-tight">
+            <TextTyping text="Beta Access" />
           </h1>
           
           <div className="space-y-6 mb-12">
@@ -477,8 +560,8 @@ const App = () => {
           </div>
 
           {/* Waitlist */}
-          <div className=" rounded-2xl p-4 sm:p-6 border border-white/20 text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-4">Join Waitlist</h2>
+          <div className=" rounded-2xl p-4 sm:p-6 border border-white/20 text-center max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-8">Join Waitlist</h2>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <input
                 type="email"
@@ -497,12 +580,12 @@ const App = () => {
           </div>
 
           {/* Small beta access button */}
-          <div className="max-w-2xl mx-auto mb-8">
+          <div className="max-w-2xl mx-auto mb-">
             <button
               onClick={goToBeta}
-              className="text-sm text-slate-600 hover:text-slate-800 underline transition-colors duration-200"
+              className="text-sm text-slate-600 hover:text-slate-800 transition-colors duration-200"
             >
-              beta access
+              <TextTyping text="beta access" />
             </button>
           </div>
 
@@ -526,6 +609,24 @@ const App = () => {
           </svg>
         </button>
       </div>
+
+      {/* Bottom-left closable blurb popup */}
+      {showBlurb && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-white/90 backdrop-blur-sm border border-slate-200 shadow-lg rounded-lg p-4 text-slate-700">
+          <div className="flex items-start gap-3">
+            <div className="flex-1 text-md">
+              Select your favorite newsletters, submit your email, and receive an email a week with what you want to hear!
+            </div>
+            <button
+              aria-label="Close"
+              onClick={() => setShowBlurb(false)}
+              className="text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Top Controls Row */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-4 2xl:px-0 mb-12">
@@ -575,9 +676,10 @@ const App = () => {
                 />
                 <button
                   onClick={handleSubmit}
-                  className="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-gray-400 to-gray-600 hover:from-blue-500 hover:to-purple-500 text-white transition-all duration-300 shadow hover:shadow-md"
+                  className="w-full sm:w-auto px-4 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-500 text-white transition-all duration-300 shadow hover:shadow-md"
                 >
-                  {submitText}
+                  
+                <TextTyping text="Submit" />
                 </button>
               </div>
             </div>
