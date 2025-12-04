@@ -74,7 +74,7 @@ const App = () => {
   ];
 
   const [text] = useTypewriter({
-    words: ["NewsKiller"],
+    words: ["Nudge"],
     typeSpeed: 53,
     loop: 2,
   });
@@ -502,7 +502,7 @@ const App = () => {
           
           <div className="space-y-6 mb-12">
             <p className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed">
-              Enter your beta access code to start using NewsKiller
+              Enter your beta access code to start using Nudge
             </p>
           </div>
 
